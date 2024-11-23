@@ -20,5 +20,4 @@ El proyecto aborda un problema crítico en la región: muchos estudiantes no sab
 
 - **Modelo:** Llama 3.1 405B Instruct Turbo
 - **Framework:** Python y FastAPI para el backend.
-- **Interfaz:** React para el frontend, con un diseño intuitivo y accesible.
-- **Integraciones:** APIs educativas y bases de datos relevantes para complementar la orientación.
+- **Interfaz:** Bootstrap para el frontend, con un diseño intuitivo y accesible.
