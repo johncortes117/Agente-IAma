@@ -21,3 +21,17 @@ El proyecto aborda un problema crítico en la región: muchos estudiantes no sab
 - **Modelo:** Llama 3.1 405B Instruct Turbo
 - **Framework:** Python y FastAPI para el backend.
 - **Interfaz:** Bootstrap para el frontend, con un diseño intuitivo y accesible.
+
+💡 Equipo
+- John Cortés
+- Angelo Benavides
+
+## 📋 Cómo Empezar
+
+Sigue estos pasos para configurar el proyecto localmente:
+
+1. Clona este repositorio:
+
+   ```bash
+   git clone https://github.com/tuusuario/agente-iama.git
+  ```
