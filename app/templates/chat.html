@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - Agente IAma</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/styles.css') }}">
+</head>
+<body>
+    <div class="form-container">
+        <div class="chat-wrapper">
+            <div class="chat-header">
+                <h2>🦙 Agente IAma - Tu Guía Vocacional</h2>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <!-- Los mensajes se agregarán aquí dinámicamente -->
+            </div>
+            <div class="chat-input">
+                <textarea 
+                    id="messageInput" 
+                    placeholder="Escribe tu mensaje aquí..."
+                    rows="2"
+                ></textarea>
+                <button 
+                    id="sendButton" 
+                    class="submit-button"
+                >Enviar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        
+        // Mantener el historial completo de la conversación
+        let conversationHistory = [{
+            role: "system",
+            content: `Eres un agente de inteligencia artificial que ayuda a los estudiantes a descubrir qué carrera universitaria pueden seguir. 
+            Cuando el estudiante se presenta con su información personal, usa esos datos para personalizar tus recomendaciones según su edad y país.
+            Pregunta sobre sus materias favoritas, rendimiento académico, intereses y metas profesionales.
+            Siempre que hagas preguntas, preséntalas en una lista numerada y sé breve y directo.`
+        }];
+
+        function addMessage(content, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            messageDiv.innerHTML = content.replace(/\n/g, '<br>');
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function sendMessage(content) {
+            try {
+                // Añadir el mensaje del usuario al historial antes de enviarlo
+                conversationHistory.push({
+                    role: "user",
+                    content: content
+                });
+
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        message: content,
+                        conversation_history: conversationHistory 
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.response) {
+                    // Añadir la respuesta del asistente al historial
+                    conversationHistory.push({
+                        role: "assistant",
+                        content: data.response
+                    });
+                    return data.response;
+                } else {
+                    throw new Error('Respuesta inválida del servidor');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                return 'Lo siento, ha ocurrido un error al procesar tu mensaje.';
+            }
+        }
+
+        async function handleSend() {
+            const message = messageInput.value.trim();
+            if (!message || sendButton.disabled) return;
+
+            try {
+                sendButton.disabled = true;
+                messageInput.disabled = true;
+                
+                // Mostrar el mensaje del usuario
+                addMessage(message, true);
+                messageInput.value = '';
+
+                // Mostrar indicador de escritura
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'typing-indicator';
+                typingDiv.textContent = 'IAma está escribiendo...';
+                chatMessages.appendChild(typingDiv);
+
+                // Obtener y mostrar la respuesta
+                const response = await sendMessage(message);
+                typingDiv.remove();
+                addMessage(response);
+
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('Lo siento, ha ocurrido un error al procesar tu mensaje.', false);
+            } finally {
+                sendButton.disabled = false;
+                messageInput.disabled = false;
+                messageInput.focus();
+            }
+        }
+
+        // Event listeners
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+            }
+        });
+
+        sendButton.addEventListener('click', handleSend);
+
+        // Inicialización del chat
+        window.addEventListener('load', async () => {
+            if (userData) {
+                const initialMessage = `Hola, soy ${userData.name}, tengo ${userData.age} años y soy de ${userData.country}. Me gustaría recibir orientación vocacional.`;
+                addMessage(initialMessage, true);
+                
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'typing-indicator';
+                typingDiv.textContent = 'IAma está escribiendo...';
+                chatMessages.appendChild(typingDiv);
+
+                const response = await sendMessage(initialMessage);
+                typingDiv.remove();
+                addMessage(response);
+            }
+        });
+
+        // Habilitar/deshabilitar botón según contenido
+        messageInput.addEventListener('input', function() {
+            sendButton.disabled = !this.value.trim();
+        });
+    </script>
+</body>
+</html> 
