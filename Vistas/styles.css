@@ -1,0 +1,100 @@
+/* Estilo global */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(150deg, #09AE7F, #0a0a0a);
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Siempre ocupa toda la pantalla */
+    overflow: hidden; /* Sin scroll */
+  }
+  
+  /* Contenedor principal */
+  .login-container {
+    background-color: #000000;
+    border-radius: 12px;
+    padding: 30px 20px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    width: 100%; /* Ancho adaptativo */
+    max-width: 350px; /* Ancho máximo */
+    text-align: center; /* Centrado del contenido */
+  }
+  
+  /* Títulos */
+  h1 {
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+    color: #09AE7F;
+  }
+  
+  /* Etiquetas */
+  label {
+    display: block;
+    text-align: left;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+  }
+  
+  /* Campos de entrada */
+  input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #09AE7F;
+    border-radius: 6px;
+    background: #0a0a0a;
+    color: #ffffff;
+    font-size: 0.9rem;
+    transition: border-color 0.3s;
+  }
+  
+  input:focus {
+    border-color: #14c5b8;
+    outline: none;
+  }
+  
+  input::placeholder {
+    color: #5e5e5e;
+  }
+  
+  /* Botón */
+  button {
+    width: 100%;
+    padding: 10px;
+    background: #14c5b8;
+    border: none;
+    border-radius: 6px;
+    color: #000;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+  }
+  
+  button:hover {
+    background: #10a49a;
+    transform: scale(1.02);
+  }
+  
+  button:active {
+    background: #0e887d;
+  }
+  
+  /* Responsividad */
+  @media (max-width: 400px) {
+    .login-container {
+      padding: 20px;
+    }
+  
+    h1 {
+      font-size: 1.4rem;
+    }
+  
+    input, button {
+      font-size: 0.85rem;
+    }
+  }
+  
