@@ -33,5 +33,45 @@ Sigue estos pasos para configurar el proyecto localmente:
 1. Clona este repositorio:
 
    ```bash
-   git clone https://github.com/tuusuario/agente-iama.git
-  ```
+   git clone https://github.com/johncortes117/agente-iama.git
+   cd agente-iama/
+   ```
+   
+2. Crear el ambiente virtual:
+
+   Windows:
+   ```bash
+   python -m venv env
+   ```
+   
+   Linux/macOS:
+   ```bash
+   python3 -m venv env
+   ```
+   
+4. Activar el entorno virtual:
+
+   Windows:
+   ```bash
+   .\env\Scripts\activate
+   ```
+   
+   Linux/macOS:
+   ```bash
+   source env/bin/activate
+   ```
+6. Instalar las dependencias:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+7. Configurar el archivo .env:
+
+   Este proyecto utiliza variables de entorno para configurar el acceso a la API. Para crear el archivo .env con las variables necesarias, ejecuta el siguiente comando en la raíz del 
+   proyecto:
+
+   ```bash
+   echo "API_URL=tu_url_aqui" > .env
+   echo "API_KEY=tu_api_key_aqui" >> .env
+   ```
