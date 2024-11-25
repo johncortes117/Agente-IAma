@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat - Agente IAma</title>
     <link rel="stylesheet" href="{{ url_for('static', path='/css/styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
     <div class="form-container">
@@ -35,54 +36,54 @@
         const sendButton = document.getElementById('sendButton');
         const userData = JSON.parse(localStorage.getItem('userData'));
         
-        // Mantener el historial completo de la conversación
-        let conversationHistory = [{
+        // Array para mantener el historial de mensajes
+        let messageHistory = [{
             role: "system",
-            content: `Eres un agente de inteligencia artificial que ayuda a los estudiantes a descubrir qué carrera universitaria pueden seguir. 
-            Cuando el estudiante se presenta con su información personal, usa esos datos para personalizar tus recomendaciones según su edad y país.
-            Pregunta sobre sus materias favoritas, rendimiento académico, intereses y metas profesionales.
-            Siempre que hagas preguntas, preséntalas en una lista numerada y sé breve y directo.`
+            content: `Eres un consejero vocacional amigable y empático llamado IAma. Tu objetivo es ayudar a estudiantes latinoamericanos a descubrir su vocación y elegir una carrera universitaria.
+
+            Instrucciones específicas:
+            - Usa un tono amigable y cercano, como si fueras un mentor comprensivo
+            - Considera el contexto específico del país del estudiante al recomendar carreras
+            - Analiza cuidadosamente las respuestas del test y explica por qué tus recomendaciones se ajustan a ellas
+            - Usa formato Markdown para estructurar tus respuestas (negritas, listas, etc.)
+            - Considera la edad del estudiante al dar recomendaciones
+            - Menciona las oportunidades laborales específicas en su país o región
+            - Si necesitas más información, haz preguntas específicas y relevantes
+            - Incluye una mezcla de carreras tradicionales e innovadoras en tus recomendaciones`
         }];
 
         function addMessage(content, isUser = false) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
-            messageDiv.innerHTML = content.replace(/\n/g, '<br>');
+            messageDiv.innerHTML = isUser ? content : marked.parse(content);
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Agregar el mensaje al historial
+            messageHistory.push({
+                role: isUser ? "user" : "assistant",
+                content: content
+            });
         }
 
         async function sendMessage(content) {
             try {
-                // Añadir el mensaje del usuario al historial antes de enviarlo
-                conversationHistory.push({
-                    role: "user",
-                    content: content
-                });
-
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({ 
-                        message: content,
-                        conversation_history: conversationHistory 
+                        messages: messageHistory
                     })
                 });
                 
-                const data = await response.json();
-                
-                if (data.response) {
-                    // Añadir la respuesta del asistente al historial
-                    conversationHistory.push({
-                        role: "assistant",
-                        content: data.response
-                    });
-                    return data.response;
-                } else {
-                    throw new Error('Respuesta inválida del servidor');
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
                 }
+                
+                const data = await response.json();
+                return data.response;
             } catch (error) {
                 console.error('Error:', error);
                 return 'Lo siento, ha ocurrido un error al procesar tu mensaje.';
@@ -91,67 +92,63 @@
 
         async function handleSend() {
             const message = messageInput.value.trim();
-            if (!message || sendButton.disabled) return;
+            if (!message) return;
 
-            try {
-                sendButton.disabled = true;
-                messageInput.disabled = true;
-                
-                // Mostrar el mensaje del usuario
-                addMessage(message, true);
-                messageInput.value = '';
+            messageInput.value = '';
+            addMessage(message, true);
 
-                // Mostrar indicador de escritura
-                const typingDiv = document.createElement('div');
-                typingDiv.className = 'typing-indicator';
-                typingDiv.textContent = 'IAma está escribiendo...';
-                chatMessages.appendChild(typingDiv);
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.textContent = 'IAma está escribiendo...';
+            chatMessages.appendChild(typingDiv);
 
-                // Obtener y mostrar la respuesta
-                const response = await sendMessage(message);
-                typingDiv.remove();
-                addMessage(response);
-
-            } catch (error) {
-                console.error('Error:', error);
-                addMessage('Lo siento, ha ocurrido un error al procesar tu mensaje.', false);
-            } finally {
-                sendButton.disabled = false;
-                messageInput.disabled = false;
-                messageInput.focus();
-            }
+            const response = await sendMessage(message);
+            typingDiv.remove();
+            addMessage(response);
         }
 
-        // Event listeners
-        messageInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
+        window.addEventListener('load', async () => {
+            if (userData) {
+                try {
+                    const userId = localStorage.getItem('userId');
+                    const testResponsesRes = await fetch(`/api/users/${userId}/test-responses`);
+                    
+                    if (!testResponsesRes.ok) {
+                        throw new Error('No se pudieron obtener las respuestas del test');
+                    }
+                    
+                    const testResponses = await testResponsesRes.json();
+                    
+                    const initialMessage = `Hola, soy ${userData.name}, tengo ${userData.age} años y soy de ${userData.country}.\n\n` +
+                        `Estas son mis respuestas del test vocacional:\n` +
+                        testResponses.map(r => 
+                            `Pregunta ${r.question_id}: ${Array.isArray(r.response) ? r.response.join(', ') : r.response}`
+                        ).join('\n');
+                    
+                    addMessage(initialMessage, true);
+                    
+                    const typingDiv = document.createElement('div');
+                    typingDiv.className = 'typing-indicator';
+                    typingDiv.textContent = 'IAma está escribiendo...';
+                    chatMessages.appendChild(typingDiv);
+
+                    const response = await sendMessage(initialMessage);
+                    typingDiv.remove();
+                    addMessage(response);
+                    
+                } catch (error) {
+                    console.error('Error al inicializar el chat:', error);
+                    addMessage('Lo siento, ha ocurrido un error al cargar tus respuestas del test.', false);
+                }
             }
         });
 
         sendButton.addEventListener('click', handleSend);
-
-        // Inicialización del chat
-        window.addEventListener('load', async () => {
-            if (userData) {
-                const initialMessage = `Hola, soy ${userData.name}, tengo ${userData.age} años y soy de ${userData.country}. Me gustaría recibir orientación vocacional.`;
-                addMessage(initialMessage, true);
-                
-                const typingDiv = document.createElement('div');
-                typingDiv.className = 'typing-indicator';
-                typingDiv.textContent = 'IAma está escribiendo...';
-                chatMessages.appendChild(typingDiv);
-
-                const response = await sendMessage(initialMessage);
-                typingDiv.remove();
-                addMessage(response);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
             }
-        });
-
-        // Habilitar/deshabilitar botón según contenido
-        messageInput.addEventListener('input', function() {
-            sendButton.disabled = !this.value.trim();
         });
     </script>
 </body>

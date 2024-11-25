@@ -12,44 +12,33 @@ load_dotenv()
 API_URL = os.getenv("API_URL")
 API_KEY = os.getenv("API_KEY")
 
-def llama_chat(prompt):
+def llama_chat(messages):
     if not API_URL or not API_KEY:
-        return "Error: API_URL o API_KEY no están configurados correctamente."
-    
-    # Configurar encabezados
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json"
-    }
-    
-    # Sistema prompt mejorado para personalización
-    system_prompt = """Eres un agente de inteligencia artificial que ayuda a los estudiantes a descubrir qué carrera universitaria pueden seguir. 
-    Cuando el estudiante se presenta con su información personal, usa esos datos para personalizar tus recomendaciones según su edad y país.
-    Pregunta sobre sus materias favoritas, rendimiento académico, intereses y metas profesionales.
-    Siempre que hagas preguntas, preséntalas en una lista numerada y sé breve y directo."""
-    
-    payload = {
-        "model": "meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": prompt}
-        ],
-        "max_tokens": 1000,
-        "temperature": 0.7
-    }
+        raise ValueError("API_URL o API_KEY no están configurados correctamente.")
     
     try:
-        response = requests.post(API_URL, headers=headers, json=payload)
+        headers = {
+            "Authorization": f"Bearer {API_KEY}",
+            "Content-Type": "application/json"
+        }
         
-        if response.status_code == 200:
-            data = response.json()
-            content = data["choices"][0]["message"]["content"]
-            return content.strip()
-        else:
-            return f"Error en la solicitud: {response.status_code}"
+        payload = {
+            "model": "meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
+            "messages": messages,
+            "max_tokens": 1000,
+            "temperature": 0.7
+        }
+        
+        response = requests.post(API_URL, headers=headers, json=payload, timeout=30)
+        response.raise_for_status()
+        
+        data = response.json()
+        return data["choices"][0]["message"]["content"].strip()
                 
     except requests.exceptions.RequestException as e:
-        return f"Error de conexión: {str(e)}"
+        raise Exception(f"Error de conexión con la API: {str(e)}")
+    except (KeyError, IndexError) as e:
+        raise Exception(f"Error en el formato de respuesta: {str(e)}")
 
 # Configurar Gradio
 def chatbot_interface(user_input):

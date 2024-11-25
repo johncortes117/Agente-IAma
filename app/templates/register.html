@@ -9,15 +9,15 @@
 <body>
   <div class="form-container">
     <div class="form-wrapper">
-      <h1>Iniciar Sesión</h1>
-      <form id="registerForm" onsubmit="handleRegister(event)">
+      <h1>Registro</h1>
+      <form id="registerForm" onsubmit="handleRegister(event)" method="POST">
         <div class="form-group">
           <label for="name">Nombre:</label>
           <input 
             type="text" 
             id="name" 
             name="name" 
-            placeholder="Ingresar su nombre"
+            placeholder="Ingresa tu nombre"
             required
           >
         </div>
@@ -28,7 +28,7 @@
             type="email" 
             id="email" 
             name="email" 
-            placeholder="Ingresar su correo electrónico"
+            placeholder="Ingresa tu correo electrónico"
             required
           >
         </div>
@@ -39,8 +39,10 @@
             type="number" 
             id="age" 
             name="age" 
-            placeholder="Ingresar su edad"
+            placeholder="Ingresa tu edad"
             required
+            min="12"
+            max="100"
           >
         </div>
 
@@ -50,12 +52,12 @@
             type="text" 
             id="country" 
             name="country" 
-            placeholder="Ingresar su país"
+            placeholder="Ingresa tu país"
             required
           >
         </div>
 
-        <button type="submit" class="submit-button">Ingresar</button>
+        <button type="submit" class="submit-button">Comenzar Test</button>
       </form>
     </div>
   </div>

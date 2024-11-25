@@ -1,4 +1,3 @@
-// Función para manejar el registro de usuarios
 async function handleRegister(event) {
     event.preventDefault();
     
@@ -20,18 +19,24 @@ async function handleRegister(event) {
 
         const data = await response.json();
 
-        if (response.ok) {
-            // Guardar datos del usuario en localStorage
-            localStorage.setItem('userData', JSON.stringify(userData));
-            localStorage.setItem('userId', data.id);
-            
-            // Redirigir al chat-interface
-            window.location.href = '/chat';
-        } else {
-            alert(`Error: ${data.detail || 'Error en el registro'}`);
+        if (!response.ok) {
+            throw new Error(data.detail || 'Error en el registro');
         }
+
+        // Guardar datos en localStorage
+        localStorage.setItem('userId', data.id);
+        localStorage.setItem('userData', JSON.stringify(userData));
+        
+        // Redirección explícita al test
+        window.location.replace('/test');
+        return false;
+        
     } catch (error) {
         console.error('Error:', error);
-        alert('Error en el registro');
+        alert('Error en el registro: ' + error.message);
+        return false;
     }
 }
+
+// Asegurarnos que la función está disponible globalmente
+window.handleRegister = handleRegister;
