@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Vocacional - Agente IAma</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/styles.css') }}">
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-wrapper">
+            <div class="progress-bar">
+                <div class="progress" style="width: 0%"></div>
+            </div>
+
+            <div id="question-container">
+                <!-- Las preguntas se cargarán aquí dinámicamente -->
+            </div>
+
+            <div class="button-container">
+                <button id="prevButton" class="nav-button" style="display: none;">Anterior</button>
+                <button id="nextButton" class="nav-button">Siguiente</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', path='/js/test.js') }}"></script>
+</body>
+</html> 
