@@ -22,7 +22,7 @@ El proyecto aborda un problema crítico en la región: muchos estudiantes no sab
 - **Framework:** Python y FastAPI para el backend.
 - **Interfaz:** Bootstrap para el frontend, con un diseño intuitivo y accesible.
 
-💡 Equipo
+## 💡 Equipo
 - John Cortés
 - Angelo Benavides
 
