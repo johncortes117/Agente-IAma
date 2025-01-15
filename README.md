@@ -18,9 +18,8 @@ El proyecto aborda un problema crítico en la región: muchos estudiantes no sab
 
 ## 🛠️ Tecnologías
 
-- **Modelo:** Llama 3.1 405B Instruct Turbo
-- **Framework:** Python y FastAPI para el backend.
-- **Interfaz:** Bootstrap para el frontend, con un diseño intuitivo y accesible.
+- **Modelo LLM:** Llama 3.1 405B Instruct Turbo
+- **Lenguaje y Framework:** Python y FastAPI para el backend.
 
 ## 💡 Equipo
 - John Cortés
